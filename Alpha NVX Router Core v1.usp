@@ -1,0 +1,106 @@
+/* Header */
+
+/*
+Dealer Name: Alpha Video	
+Programmer: dustin.hurlock@alphavideo.com
+Comments:
+*/
+
+/* Compiler Directives */
+#DEFINE_CONSTANT NumRoutes	64
+
+#CATEGORY "46" "Dustin Hurlock" 
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+   
+//#USER_SIMPLSHARP_LIBRARY ""
+
+/* I/O */
+
+// DIGITAL_INPUT 
+ANALOG_INPUT route[NumRoutes];
+STRING_INPUT streamLocation[NumRoutes][100], _SKIP_, streamLocationFeedback[NumRoutes,NumRoutes][100];
+// BUFFER_INPUT 
+
+// DIGITAL_OUTPUT 
+ANALOG_OUTPUT route_fb[NumRoutes];
+STRING_OUTPUT streamLocationRoute[NumRoutes,NumRoutes];
+
+//DECLARE S# OBJECT HERE
+
+/* Global Variables */
+   
+
+/* Functions */
+/*
+Function MyFunction1()
+{
+}
+*/
+
+
+/* Event Handlers */
+
+CHANGE route
+{
+    INTEGER changedRoute;
+
+	changedRoute = GETLASTMODIFIEDARRAYINDEX();
+
+	IF(route[changedRoute] > 0)
+	{
+    	streamLocationRoute[changedRoute] = streamLocation[route[changedRoute]];
+	}
+	ELSE
+	{
+    	streamLocationRoute[changedRoute] = "";
+	}
+}
+ 
+
+CHANGE streamLocationFeedback
+{
+	INTEGER changedRoute, sourceCheck;
+
+	changedRoute = GETLASTMODIFIEDARRAYINDEX();
+        
+    IF(streamLocationFeedback[changedRoute] = "")
+    {
+		route_fb[changedRoute] = 0;
+		Return;
+    }    
+        
+	FOR(sourceCheck = 1 to NumRoutes)
+	{
+    	IF(streamLocationFeedback[changedRoute] = streamLocation[sourceCheck])
+		{
+        	route_fb[changedRoute] = sourceCheck;
+        	Return;
+		}
+	}
+}
+ 
+CHANGE streamLocation
+{
+	Integer changedStream, sourceCheck;
+	
+	changedStream = GETLASTMODIFIEDARRAYINDEX();
+
+	FOR(sourceCheck = 1 to NumRoutes)
+	{
+    	IF(route[sourceCheck] = changedStream) 
+		{ 
+        	streamLocationRoute[sourceCheck] = streamLocation[changedStream];
+		}
+	}
+}
+
+/* Main() */
+/*
+Function Main()
+{
+    // WaitForInitializationComplete();
+}
+*/
